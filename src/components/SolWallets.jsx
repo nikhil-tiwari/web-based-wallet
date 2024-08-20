@@ -4,14 +4,18 @@ import { derivePath } from "ed25519-hd-key";
 import { Keypair } from "@solana/web3.js";
 import bs58 from "bs58";
 import { Buffer } from "buffer";
+import axios from "axios";
 import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { addWallet } from "../redux/slices/sol";
+import BalanceModal from "./BalanceModal";
 
 
 const SolWallets = ({ seed }) => {
   const [accountIndex, setAccountIndex] = useState(0);
   const [keys, setKeys] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [balance, setBalance] = useState("");
   const dispatch = useDispatch();
   const solWallets = useSelector((store) => store.solWallets);
 
@@ -40,8 +44,28 @@ const SolWallets = ({ seed }) => {
     ]);
   };
 
+  const handleClick = async (publicKey) => {
+    const apiUrl = import.meta.env.VITE_SOL_ALCHEMY;
+    try {
+      const response = await axios.post(
+        apiUrl,
+        {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "getBalance",
+          "params": [publicKey]
+        }
+      );
+      console.log(response);
+      setBalance(response.data.result.value);
+      setIsModalVisible(true);
+    } catch (error) {
+      console.error("Error fetching balance:", error);
+    }
+  };
+
   return (
-    <div className="mb-12 p-4 h-[30rem] w-[45rem] bg-neutral-950 rounded-md shadow-lg flex flex-col items-center overflow-auto custom-scrollbar">
+    <div className="mb-12 p-4 h-[30rem] md:w-[45rem] sm:w-[95%] bg-neutral-950 rounded-md shadow-lg flex flex-col items-center overflow-auto custom-scrollbar">
       <button
         className="text-neutral-800 bg-neutral-400 hover:bg-neutral-100 w-32 h-12 mt-4 rounded-xl min-h-12"
         onClick={handleCreateWallet}
@@ -50,8 +74,9 @@ const SolWallets = ({ seed }) => {
       </button>
       {keys.map((key, index) => (
         <div
-          className="mt-4 bg-neutral-900 h-20 w-[42rem] min-h-20 flex flex-col justify-center items-center hover:bg-neutral-800 rounded-lg cursor-pointer"
+          className="mt-4 bg-neutral-900 h-20 md:w-[42rem] sm:w-[95%] min-h-20 flex flex-col justify-center items-center hover:bg-neutral-800 rounded-lg cursor-pointer"
           key={index + 1}
+          onClick={() => handleClick(key.public)}
         >
           <div className="w-full px-2 flex justify-center">
             <p className="truncate text-center"><strong>Public key: </strong>{key.public}</p>
@@ -61,6 +86,13 @@ const SolWallets = ({ seed }) => {
           </div>
         </div>
       ))}
+      {keys.length > 0 && <p className="text-center mt-4">Click on the wallet to check balance</p>}
+      <BalanceModal
+        isVisible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+        balance={balance}
+        type={"sol"}
+      />
     </div>
   );
 };

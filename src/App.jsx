@@ -1,3 +1,4 @@
+// App.js
 import { useState, useEffect } from "react";
 import { generateMnemonic, mnemonicToSeedSync } from "bip39";
 import { Buffer } from "buffer";
@@ -34,9 +35,9 @@ function App() {
         <div className="absolute top-0 z-[-10] h-screen w-screen bg-neutral-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
       </div>
 
-      <div className="flex flex-wrap flex-col justify-center items-center pb-8">
-        <h1 className="text-6xl text-center w-full mt-24">Web based wallet</h1>
-        <button className="mt-8 bg-neutral-400 text-neutral-800 px-6 py-3 rounded-2xl transition-all ease-in-out shadow-md font-medium min-w-[200px] hover:bg-neutral-100" onClick={handleIsMnemonic}>Create Mnemonics</button>
+      <div className="flex flex-col justify-center items-center pb-8 px-4 sm:px-8">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl text-center w-full mt-24">Multi Chain Wallet</h1>
+        <button className="mt-8 bg-neutral-400 text-neutral-800 px-4 sm:px-6 py-2 sm:py-3 rounded-2xl transition-all ease-in-out shadow-md font-medium min-w-[150px] sm:min-w-[200px] hover:bg-neutral-100" onClick={handleIsMnemonic}>Create Mnemonics</button>
         { mnemonic && separateMnemonic && <Mneumonic separateMnemonic={separateMnemonic} seed={seed} /> }
       </div>
     </div>
